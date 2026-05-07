@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Кофемания — Место, где живёт кофе</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f5efe6;
+      --dark: #1a1108;
+      --brown: #6b3f1f;
+      --gold: #c8922a;
+      --light-brown: #d4a96a;
+      --text: #3b2a1a;
+      --muted: #8a7060;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 5vw;
+      background: rgba(245, 239, 230, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(107,63,31,0.12);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 30px rgba(26,17,8,0.08); }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--brown);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+      transition: color 0.3s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--brown); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 80px;
+    }
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8vw 5vw 8vw 8vw;
+    }
+    .hero-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 5vw, 5.5rem);
+      line-height: 1.1;
+      color: var(--dark);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--brown);
+    }
+    .hero-desc {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 400px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+    .btn-primary {
+      background: var(--brown);
+      color: var(--cream);
+      padding: 0.85rem 2rem;
+      border: none;
+      cursor: pointer;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--dark); transform: translateY(-2px); }
+    .btn-ghost {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brown);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: gap 0.3s;
+    }
+    .btn-ghost:hover { gap: 0.9rem; }
+    .btn-ghost::after { content: '→'; }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+      background: var(--dark);
+    }
+    .hero-img-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 60% 40%, rgba(200,146,42,0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(107,63,31,0.3) 0%, transparent 50%),
+        var(--dark);
+    }
+    .coffee-illustration {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.6s forwards;
+    }
+    .coffee-illustration svg {
+      width: 60%;
+      max-width: 340px;
+      filter: drop-shadow(0 30px 60px rgba(200,146,42,0.3));
+    }
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(245,239,230,0.4);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll-hint span { writing-mode: vertical-rl; }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 10vw 8vw;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 6vw;
+      align-items: center;
+    }
+    .about-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      align-self: flex-start;
+      margin-top: 1rem;
+    }
+    .about-content {}
+    .about-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+    }
+    .about-content p {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid rgba(107,63,31,0.15);
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── MENU ── */
+    #menu {
+      background: var(--dark);
+      padding: 8vw;
+      position: relative;
+      overflow: hidden;
+    }
+    #menu::before {
+      content: 'MENU';
+      position: absolute;
+      top: -0.1em;
+      right: -0.05em;
+      font-family: 'Playfair Display', serif;
+      font-size: 20vw;
+      color: rgba(245,239,230,0.03);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+    }
+    .section-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3vw, 3rem);
+      color: var(--cream);
+      line-height: 1.2;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+    }
+    .menu-card {
+      background: rgba(245,239,230,0.04);
+      padding: 2.5rem 2rem;
+      border: 1px solid rgba(245,239,230,0.06);
+      transition: background 0.3s, transform 0.3s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .menu-card:hover { background: rgba(200,146,42,0.08); transform: translateY(-4px); }
+    .menu-card:hover::before { width: 100%; }
+    .menu-icon {
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+    .menu-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--cream);
+      margin-bottom: 0.6rem;
+    }
+    .menu-card p {
+      font-size: 0.85rem;
+      color: rgba(245,239,230,0.45);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+    }
+    .menu-price {
+      font-size: 1.1rem;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* ── ATMOSPHERE ── */
+    #atmosphere {
+      padding: 10vw 8vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6vw;
+      align-items: center;
+    }
+    .atm-visual {
+      position: relative;
+      height: 500px;
+    }
+    .atm-box {
+      position: absolute;
+      border-radius: 2px;
+    }
+    .atm-box-1 {
+      inset: 0;
+      background: linear-gradient(135deg, var(--brown) 0%, var(--dark) 100%);
+    }
+    .atm-box-2 {
+      bottom: -2rem;
+      right: -2rem;
+      width: 55%;
+      height: 55%;
+      background: var(--cream);
+      border: 8px solid var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 60px rgba(26,17,8,0.15);
+    }
+    .atm-inner-text {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .atm-inner-text .big {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      color: var(--brown);
+      line-height: 1;
+    }
+    .atm-inner-text .small {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .atm-pattern {
+      position: absolute;
+      top: -1.5rem;
+      left: -1.5rem;
+      width: 120px;
+      height: 120px;
+      border: 1px solid rgba(107,63,31,0.3);
+    }
+    .atm-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.2;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+    .atm-content p {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+    }
+    .features-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .features-list li::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--brown);
+      padding: 8vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6vw;
+      align-items: center;
+    }
+    #contact h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    #contact p {
+      color: rgba(245,239,230,0.65);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+    .contact-details { display: flex; flex-direction: column; gap: 1.5rem; }
+    .contact-item {}
+    .contact-item .c-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--light-brown);
+      margin-bottom: 0.3rem;
+    }
+    .contact-item .c-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--cream);
+    }
+    .hours-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(245,239,230,0.1);
+      font-size: 0.85rem;
+      color: rgba(245,239,230,0.7);
+    }
+    .hours-row span:last-child { color: var(--light-brown); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      padding: 2.5rem 8vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--gold);
+    }
+    footer p {
+      font-size: 0.78rem;
+      color: rgba(245,239,230,0.3);
+      letter-spacing: 0.05em;
+    }
+    .social-links { display: flex; gap: 1.5rem; }
+    .social-links a {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(245,239,230,0.4);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .social-links a:hover { color: var(--gold); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+    @keyframes steamRise {
+      0%   { transform: translateY(0) scaleX(1); opacity: 0.6; }
+      50%  { transform: translateY(-20px) scaleX(1.3); opacity: 0.3; }
+      100% { transform: translateY(-40px) scaleX(0.8); opacity: 0; }
+    }
+    .steam { animation: steamRise 2.5s ease-in-out infinite; }
+    .steam:nth-child(2) { animation-delay: 0.6s; }
+    .steam:nth-child(3) { animation-delay: 1.2s; }
+
+    /* scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      #hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { height: 50vw; min-height: 300px; }
+      #about { grid-template-columns: 1fr; }
+      .about-label { writing-mode: horizontal-tb; transform: none; margin-bottom: 0.5rem; }
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+      #atmosphere { grid-template-columns: 1fr; }
+      .atm-visual { height: 350px; margin-bottom: 4rem; }
+      #contact { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">Кофемания</a>
+    <ul class="nav-links">
+      <li><a href="#about">О нас</a></li>
+      <li><a href="#menu">Меню</a></li>
+      <li><a href="#atmosphere">Атмосфера</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-left">
+      <span class="hero-tag">Specialty Coffee · Москва</span>
+      <h1 class="hero-title">Место,<br>где живёт <em>кофе</em></h1>
+      <p class="hero-desc">Мы варим кофе из зёрен со всего мира — с уважением к происхождению и страстью к вкусу. Каждая чашка — это история.</p>
+      <div class="hero-actions">
+        <a href="#menu" class="btn-primary">Смотреть меню</a>
+        <a href="#contact" class="btn-ghost">Найти нас</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-img-bg"></div>
+      <div class="coffee-illustration">
+        <svg viewBox="0 0 300 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Steam -->
+          <path class="steam" d="M120 60 Q115 45 120 30 Q125 15 120 0" stroke="#c8922a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path class="steam" d="M150 55 Q145 40 150 25 Q155 10 150 -5" stroke="#c8922a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <path class="steam" d="M180 60 Q175 45 180 30 Q185 15 180 0" stroke="#c8922a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <!-- Saucer -->
+          <ellipse cx="150" cy="280" rx="110" ry="18" fill="#3d2010" opacity="0.9"/>
+          <ellipse cx="150" cy="272" rx="100" ry="14" fill="#4d2a14"/>
+          <!-- Cup body -->
+          <path d="M75 170 Q70 260 150 268 Q230 260 225 170 Z" fill="#5a3018"/>
+          <path d="M75 170 Q70 255 150 263 Q230 255 225 170 Z" fill="#6b3f1f"/>
+          <!-- Coffee surface -->
+          <ellipse cx="150" cy="170" rx="75" ry="22" fill="#3b1e08"/>
+          <ellipse cx="150" cy="170" rx="70" ry="19" fill="#4a2510"/>
+          <!-- Latte art -->
+          <path d="M150 155 Q160 162 150 168 Q140 162 150 155Z" fill="#c8922a" opacity="0.7"/>
+          <ellipse cx="150" cy="163" rx="18" ry="6" stroke="#c8922a" stroke-width="1.5" fill="none" opacity="0.5"/>
+          <ellipse cx="150" cy="163" rx="30" ry="10" stroke="#c8922a" stroke-width="1" fill="none" opacity="0.3"/>
+          <!-- Handle -->
+          <path d="M225 185 Q260 185 260 210 Q260 235 225 235" stroke="#7a4a28" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <path d="M225 185 Q255 185 255 210 Q255 235 225 235" stroke="#8a5a32" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <!-- Rim highlight -->
+          <ellipse cx="150" cy="170" rx="75" ry="22" stroke="#8a5a32" stroke-width="3" fill="none"/>
+          <!-- Saucer detail -->
+          <ellipse cx="150" cy="272" rx="40" ry="6" fill="#3d2010"/>
+        </svg>
+      </div>
+      <div class="hero-scroll-hint">
+        <span>Листай</span>
+        <svg width="16" height="24" viewBox="0 0 16 24"><rect x="6" y="4" width="4" height="8" rx="2" fill="currentColor"/><path d="M8 18 L4 14 M8 18 L12 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-label reveal">О нас</div>
+    <div class="about-content reveal">
+      <h2>Кофе — это<br>не просто напиток</h2>
+      <p>Кофемания — это пространство для тех, кто ценит качество. С 2018 года мы работаем только с проверенными обжарщиками, изучаем происхождение зёрен и постоянно совершенствуем наше мастерство.</p>
+      <p>У нас нет места шаблонам: каждая чашка — индивидуальна, каждый гость — важен.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">6+</div>
+          <div class="stat-label">лет работы</div>
+        </div>
+        <div>
+          <div class="stat-num">40+</div>
+          <div class="stat-label">сортов кофе</div>
+        </div>
+        <div>
+          <div class="stat-num">12</div>
+          <div class="stat-label">стран-поставщиков</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu">
+    <div class="section-header reveal">
+      <div>
+        <span class="section-tag">Наш выбор</span>
+        <h2 class="section-title">Меню</h2>
+      </div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card reveal">
+        <span class="menu-icon">☕</span>
+        <h3>Эспрессо</h3>
+        <p>Насыщенный, плотный, с долгим послевкусием. Основа всего.</p>
+        <div class="menu-price">от 180 ₽</div>
+      </div>
+      <div class="menu-card reveal">
+        <span class="menu-icon">🥛</span>
+        <h3>Капучино</h3>
+        <p>Бархатистая молочная пенка и двойной эспрессо — классика жанра.</p>
+        <div class="menu-price">от 260 ₽</div>
+      </div>
+      <div class="menu-card reveal">
+        <span class="menu-icon">🌿</span>
+        <h3>Флэт уайт</h3>
+        <p>Меньше молока, больше кофе. Для тех, кто знает, чего хочет.</p>
+        <div class="menu-price">от 280 ₽</div>
+      </div>
+      <div class="menu-card reveal">
+        <span class="menu-icon">🍋</span>
+        <h3>Альтерна­тива</h3>
+        <p>Пуровер, аэропресс, кемекс — раскрываем характер каждого зерна.</p>
+        <div class="menu-price">от 320 ₽</div>
+      </div>
+      <div class="menu-card reveal">
+        <span class="menu-icon">🧊</span>
+        <h3>Колд брю</h3>
+        <p>18 часов холодного заваривания. Мягкий, освежающий, без горечи.</p>
+        <div class="menu-price">от 350 ₽</div>
+      </div>
+      <div class="menu-card reveal">
+        <span class="menu-icon">🍰</span>
+        <h3>Десерты</h3>
+        <p>Выпечка от локальных пекарей. Меняется каждый день.</p>
+        <div class="menu-price">от 200 ₽</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ATMOSPHERE -->
+  <section id="atmosphere">
+    <div class="atm-visual reveal">
+      <div class="atm-box atm-box-1"></div>
+      <div class="atm-pattern"></div>
+      <div class="atm-box atm-box-2">
+        <div class="atm-inner-text">
+          <div class="big">♥</div>
+          <div class="small">Сделано<br>с душой</div>
+        </div>
+      </div>
+    </div>
+    <div class="atm-content reveal">
+      <span class="section-tag">Атмосфера</span>
+      <h2>Пространство,<br>где хочется остаться</h2>
+      <p>Мы создали место, где можно работать, встречаться с друзьями или просто побыть наедине с собой. Тёплый свет, негромкая музыка и запах свежемолотого кофе — вот наша формула уюта.</p>
+      <ul class="features-list">
+        <li>Быстрый Wi-Fi без лишних вопросов</li>
+        <li>Розетки у каждого стола</li>
+        <li>Собственная обжарка зёрен</li>
+        <li>Дружелюбные бариста</li>
+        <li>Место для ноутбука и мыслей</li>
+      </ul>
+    </div>
+  </section>
+
+ 
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <h2>Приходите<br>к нам</h2>
+    <p>Мы работаем каждый день. Ждём вас утром, днём и вечером — с горячим кофе и хорошим настроением.</p>
+  </div>
+
+  <div class="contact-details reveal">
+    <div class="contact-item">
+      <div class="c-label">Адрес</div>
+      <div class="c-val">Москва, ул. Арбат, 24</div>
+    </div>
+    <div class="contact-item">
+      <div class="c-label">Телефон</div>
+      <div class="c-val">+7 (495) 123-45-67</div>
+    </div>
+    <div class="contact-item">
+      <div class="c-label">Режим работы</div>
+      <div class="hours-grid">
+        <div class="hours-row"><span>Пн–Пт</span><span>08:00–22:00</span></div>
+        <div class="hours-row"><span>Сб–Вс</span><span>09:00–23:00</span></div>
+      </div>
+    </div>
+
+    <!-- ФОРМА ЗАЯВКИ -->
+    <div class="contact-item" style="margin-top:1.5rem;">
+      <div class="c-label" style="margin-bottom:1rem;">Оставить заявку</div>
+      <div id="contact-form">
+        <input type="text" id="f-name" placeholder="Ваше имя" style="
+          width:100%; padding:0.75rem 1rem; margin-bottom:0.75rem;
+          background:rgba(245,239,230,0.08); border:1px solid rgba(245,239,230,0.2);
+          color:#f5efe6; font-family:'Jost',sans-serif; font-size:0.9rem; outline:none;
+        "/>
+        <input type="tel" id="f-phone" placeholder="Ваш телефон" style="
+          width:100%; padding:0.75rem 1rem; margin-bottom:0.75rem;
+          background:rgba(245,239,230,0.08); border:1px solid rgba(245,239,230,0.2);
+          color:#f5efe6; font-family:'Jost',sans-serif; font-size:0.9rem; outline:none;
+        "/>
+        <textarea id="f-msg" placeholder="Сообщение (необязательно)" rows="3" style="
+          width:100%; padding:0.75rem 1rem; margin-bottom:1rem;
+          background:rgba(245,239,230,0.08); border:1px solid rgba(245,239,230,0.2);
+          color:#f5efe6; font-family:'Jost',sans-serif; font-size:0.9rem;
+          outline:none; resize:vertical;
+        "></textarea>
+        <button onclick="sendToAlbato()" style="
+          width:100%; padding:0.85rem; background:#c8922a; border:none;
+          color:#1a1108; font-family:'Jost',sans-serif; font-size:0.85rem;
+          font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+          cursor:pointer; transition:background 0.3s;
+        ">Отправить заявку</button>
+        <div id="form-status" style="margin-top:0.8rem; font-size:0.85rem; color:#c8922a;"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">Кофемания</div>
+    <p>© 2025 Кофемания. Все права защищены.</p>
+    <div class="social-links">
+      <a href="#">Instagram</a>
+      <a href="#">Telegram</a>
+      <a href="#">ВКонтакте</a>
+    </div>
+  </footer>
+async function sendToAlbato() {
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const msg   = document.getElementById('f-msg').value.trim();
+  const status = document.getElementById('form-status');
+
+  if (!name || !phone) {
+    status.style.color = '#e07070';
+    status.textContent = 'Пожалуйста, заполните имя и телефон.';
+    return;
+  }
+
+  status.style.color = '#c8922a';
+  status.textContent = 'Отправляем...';
+
+  // https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/
+  const ALBATO_URL = 'https://h.albato.ru/wh/38/https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/';
+
+  try {
+    await fetch(ALBATO_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, phone, message: msg })
+    });
+    status.style.color = '#80c880';
+    status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-phone').value = '';
+    document.getElementById('f-msg').value = '';
+  } catch (e) {
+    status.style.color = '#e07070';
+    status.textContent = 'Ошибка. Попробуйте ещё раз.';
+  }
+}
+  <script>
+    // Nav shadow on scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
