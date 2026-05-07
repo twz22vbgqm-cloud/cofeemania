@@ -817,21 +817,27 @@ async function sendToAlbato() {
   const ALBATO_URL = 'https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/';
 
   try {
-    await fetch(ALBATO_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, message: msg })
-    });
-    status.style.color = '#80c880';
-    status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
-    document.getElementById('f-name').value = '';
-    document.getElementById('f-phone').value = '';
-    document.getElementById('f-msg').value = '';
-  } catch (e) {
-    status.style.color = '#e07070';
-    status.textContent = 'Ошибка. Попробуйте ещё раз.';
-  }
+  const formData = new URLSearchParams();
+  formData.append('name', name);
+  formData.append('phone', phone);
+  formData.append('message', msg);
+
+  await fetch(ALBATO_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData.toString()
+  });
+
+  status.style.color = '#80c880';
+  status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-msg').value = '';
+} catch (e) {
+  status.style.color = '#e07070';
+  status.textContent = 'Ошибка. Попробуйте ещё раз.';
+}
 }
     // Nav shadow on scroll
     const navbar = document.getElementById('navbar');
