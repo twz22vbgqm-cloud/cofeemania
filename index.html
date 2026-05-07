@@ -817,16 +817,17 @@ async function sendToAlbato() {
   const ALBATO_URL = 'https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/';
 
   try {
-  const formData = new URLSearchParams();
-  formData.append('name', name);
-  formData.append('phone', phone);
-  formData.append('message', msg);
+  const params = new URLSearchParams({
+    name: name,
+    phone: phone,
+    message: msg
+  });
 
-  await fetch(ALBATO_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString()
+  await new Promise((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = resolve;
+    img.src = ALBATO_URL + '?' + params.toString();
+    setTimeout(resolve, 3000);
   });
 
   status.style.color = '#80c880';
@@ -837,7 +838,6 @@ async function sendToAlbato() {
 } catch (e) {
   status.style.color = '#e07070';
   status.textContent = 'Ошибка. Попробуйте ещё раз.';
-}
 }
     // Nav shadow on scroll
     const navbar = document.getElementById('navbar');
