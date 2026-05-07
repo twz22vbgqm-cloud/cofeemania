@@ -797,6 +797,7 @@
       <a href="#">ВКонтакте</a>
     </div>
   </footer>
+  <script>
 async function sendToAlbato() {
   const name  = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
@@ -832,7 +833,6 @@ async function sendToAlbato() {
     status.textContent = 'Ошибка. Попробуйте ещё раз.';
   }
 }
-  <script>
     // Nav shadow on scroll
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
