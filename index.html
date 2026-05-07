@@ -818,6 +818,7 @@ async function sendToAlbato() {
   try {
     await fetch(ALBATO_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, phone, message: msg })
     });
