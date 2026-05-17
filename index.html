@@ -799,9 +799,9 @@
   </footer>
   <script>
 async function sendToAlbato() {
-  const name  = document.getElementById('f-name').value.trim();
-  const phone = document.getElementById('f-phone').value.trim();
-  const msg   = document.getElementById('f-msg').value.trim();
+  const name   = document.getElementById('f-name').value.trim();
+  const phone  = document.getElementById('f-phone').value.trim();
+  const msg    = document.getElementById('f-msg').value.trim();
   const status = document.getElementById('form-status');
 
   if (!name || !phone) {
@@ -813,31 +813,53 @@ async function sendToAlbato() {
   status.style.color = '#c8922a';
   status.textContent = 'Отправляем...';
 
-  // https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/
-  const ALBATO_URL = 'https://h.albato.com/wh/38/1lfehrb/PETbF7lMgbYuAC-uLM_uMUo5hWPPdDY4mGIV18zTIak/';
+  const TELEGRAM_BOT_TOKEN = '8650030640:AAGAmcxBKPW5ztGbImQ04D2kmpgc4sIx0qE';
+  const TELEGRAM_CHAT_ID   = '5902576553';
 
   try {
-  const params = new URLSearchParams({
-    name: name,
-    phone: phone,
-    message: msg
-  });
+    const aiResp = await fetch('https://api.sixseven.su/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer sk-ant-03-sUuQcXCjA3cVLuE69wsUiNCUn_wNtn3nt4iGuR9nizY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{
+          role: 'user',
+          content: `Ты крутой, харизматичный менеджер по продажам. Твоя задача мгновенно влюбить в себя клиента, который только что оставил заявку. Его зовут ${name}. Напиши одно короткое(до 300 символов) сообщение для Telegram. Текст живой, без штампов 'Уважаемый' и 'Рады приветствовать'. Лёгкий юмор или триггер скорости. В конце один вовлекающий вопрос. Выдай ТОЛЬКО чистый текст, без кавычек и пояснений.`
+        }]
+      })
+    });
+    const aiData = await aiResp.json();
+    const aiText = aiData.choices[0].message.content.trim();
 
-  await new Promise((resolve) => {
-    const img = new Image();
-    img.onload = img.onerror = resolve;
-    img.src = ALBATO_URL + '?' + params.toString();
-    setTimeout(resolve, 3000);
-  });
+    const telegramText =
+      `📩 Новая заявка с сайта!\n` +
+      `👤 Имя: ${name}\n` +
+      `📞 Телефон: ${phone}\n` +
+      `💬 Сообщение: ${msg || '—'}\n\n` +
+      `🤖 ИИ-ответ клиенту:\n${aiText}`;
 
-  status.style.color = '#80c880';
-  status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-phone').value = '';
-  document.getElementById('f-msg').value = '';
-} catch (e) {
-  status.style.color = '#e07070';
-  status.textContent = 'Ошибка. Попробуйте ещё раз.';
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: telegramText
+      })
+    });
+
+    status.style.color = '#80c880';
+    status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
+    document.getElementById('f-name').value  = '';
+    document.getElementById('f-phone').value = '';
+    document.getElementById('f-msg').value   = '';
+
+  } catch (e) {
+    status.style.color = '#e07070';
+    status.textContent = 'Ошибка. Попробуйте ещё раз.';
+  }
 }
     // Nav shadow on scroll
     const navbar = document.getElementById('navbar');
