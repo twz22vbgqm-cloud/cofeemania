@@ -814,12 +814,11 @@ async function sendToAlbato() {
   status.textContent = 'Отправляем...';
 
   try {
-    await fetch('https://webhook.nodul.ru/24252/dev/e7f6e8ad-000f-4814-a931-74d44888debf', {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, message: msg })
-    });
+    await fetch('https://webhook.nodul.ru/24252/dev/5a7ff278-0750-4892-b90c-f0c78e034fb2', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name, phone, message: msg })
+});
 
     status.style.color = '#80c880';
     status.textContent = '✓ Заявка отправлена! Мы свяжемся с вами.';
